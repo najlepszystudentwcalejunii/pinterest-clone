@@ -2,51 +2,45 @@ import { Image } from "@imagekit/react";
 import "./Comments.css";
 import EmojiPicker from "emoji-picker-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import api from "../../api/api";
+import { format } from "timeago.js";
 
-const Comments = () => {
+const Comments = ({ id }) => {
   const [open, setOpen] = useState(false);
+
+  const { isLoading, error, data } = useQuery({
+    queryKey: ["comments", id],
+    queryFn: () => api.get(`/comments/${id}`).then((res) => res.data),
+  });
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+  if (!data) {
+    return <p>Comments not found</p>;
+  }
+  if (error) {
+    return <p>An error has occurred: {error.message}</p>;
+  }
+  console.log(data);
+
   return (
     <div className="comments">
       <div className="commentList">
-        <div className="comment">
-          <Image src="/general/noAvatar.png" />
-          <div className="commentContent">
-            <span className="commentUsername">John Doe</span>
-            <p className="commentText">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore,
-              quae? Officia modi quia, voluptate a doloribus repellendus
-              incidunt dicta ut asperiores ad dolorum, eveniet at. Recusandae
-              mollitia tempore dolore culpa?
-            </p>
-            <span className="commentTime">1h</span>
+        <span className="commentCount">{data.length} Comments</span>
+        {data.map((comment) => (
+          <div key={comment._id} className="comment">
+            <Image src={comment.user.img || "/general/noAvatar.png"} />
+            <div className="commentContent">
+              <span className="commentUsername">
+                {comment.user.displayName}
+              </span>
+              <p className="commentText">{comment.description}</p>
+              <span className="commentTime">{format(comment.createdAt)}</span>
+            </div>
           </div>
-        </div>
-        <div className="comment">
-          <Image src="/general/noAvatar.png" />
-          <div className="commentContent">
-            <span className="commentUsername">John Doe</span>
-            <p className="commentText">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore,
-              quae? Officia modi quia, voluptate a doloribus repellendus
-              incidunt dicta ut asperiores ad dolorum, eveniet at. Recusandae
-              mollitia tempore dolore culpa?
-            </p>
-            <span className="commentTime">1h</span>
-          </div>
-        </div>
-        <div className="comment">
-          <Image src="/general/noAvatar.png" />
-          <div className="commentContent">
-            <span className="commentUsername">John Doe</span>
-            <p className="commentText">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore,
-              quae? Officia modi quia, voluptate a doloribus repellendus
-              incidunt dicta ut asperiores ad dolorum, eveniet at. Recusandae
-              mollitia tempore dolore culpa?
-            </p>
-            <span className="commentTime">1h</span>
-          </div>
-        </div>
+        ))}
       </div>
       <form className="commentForm">
         <input placeholder="Add a comment" type="text" />

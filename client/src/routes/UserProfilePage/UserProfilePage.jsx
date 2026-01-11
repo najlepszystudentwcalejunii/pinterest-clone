@@ -1,16 +1,40 @@
 import { useState } from "react";
 import "./UserProfilePage.css";
 import { Image } from "@imagekit/react";
-import Collections from "../../components/Collections/Collections";
+import Boards from "../../components/Boards/Boards";
 import Gallery from "../../components/Gallery/Gallery";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import api from "../../api/api";
 
 const UserProfilePage = () => {
   const [type, setType] = useState("saved");
+
+  const { userName } = useParams();
+  const { isLoading, error, data } = useQuery({
+    queryKey: ["user"],
+    queryFn: () => api.get(`/users/${userName}`).then((res) => res.data),
+  });
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+  if (!data) {
+    return <p>User not found</p>;
+  }
+  if (error) {
+    return <p>An error has occurred: {error.message}</p>;
+  }
+
   return (
     <div className="profilePage">
-      <Image className="profileImg" src="/general/noAvatar.png" width={100} />
-      <h1 className="profileName">John Doe</h1>
-      <span className="profileUsername">@johnDoe</span>
+      <Image
+        className="profileImg"
+        src={data.img || "/general/noAvatar.png"}
+        width={100}
+      />
+      <h1 className="profileName">{data.displayName}</h1>
+      <span className="profileUsername">@{data.userName}</span>
       <div className="followCounts">10 followers - 20 followings</div>
       <div className="profileInteractions">
         <Image src="/general/share.svg" />
@@ -34,7 +58,11 @@ const UserProfilePage = () => {
           Saved
         </span>
       </div>
-      {type === "created" ? <Gallery /> : <Collections />}
+      {type === "created" ? (
+        <Gallery userId={data._id} />
+      ) : (
+        <Boards userId={data._id} />
+      )}
     </div>
   );
 };
