@@ -4,15 +4,27 @@ import { Image } from "@imagekit/react";
 import Boards from "../../components/Boards/Boards";
 import Gallery from "../../components/Gallery/Gallery";
 import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../../api/api";
 
+const followUser = async (userName) => {
+  const res = await api.post(`/users/follow/${userName}`);
+};
+
 const UserProfilePage = () => {
+  const { userName } = useParams();
+  const queryClient = useQueryClient();
   const [type, setType] = useState("saved");
 
-  const { userName } = useParams();
+  const mutation = useMutation({
+    mutationFn: followUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user", userName] });
+    },
+  });
+
   const { isLoading, error, data } = useQuery({
-    queryKey: ["user"],
+    queryKey: ["user", userName],
     queryFn: () => api.get(`/users/${userName}`).then((res) => res.data),
   });
 
@@ -35,12 +47,19 @@ const UserProfilePage = () => {
       />
       <h1 className="profileName">{data.displayName}</h1>
       <span className="profileUsername">@{data.userName}</span>
-      <div className="followCounts">10 followers - 20 followings</div>
+      <div className="followCounts">
+        {data.followerCount} followers - {data.followingCount} followings
+      </div>
       <div className="profileInteractions">
         <Image src="/general/share.svg" />
         <div className="profileButtons">
           <button>Message</button>
-          <button>Follow</button>
+          <button
+            onClick={() => mutation.mutate(data.userName)}
+            disabled={mutation.isPending}
+          >
+            {data.isFollowing ? "Unfollow" : "Follow"}
+          </button>
         </div>
         <Image src="/general/more.svg" />
       </div>

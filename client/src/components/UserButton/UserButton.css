@@ -3,6 +3,7 @@
   align-items: center;
   gap: 16px;
   position: relative;
+  cursor: pointer;
 }
 .userButton img {
   width: 36px;
@@ -11,7 +12,6 @@
 }
 
 .userButton .arrow {
-  cursor: pointer;
   width: 16px;
 }
 

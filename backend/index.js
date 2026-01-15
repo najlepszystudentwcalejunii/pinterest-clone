@@ -6,8 +6,12 @@ import commentRouter from "./routes/commentRoute.js";
 import boardRouter from "./routes/boardRoute.js";
 import connectDB from "./utils/connectDB.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import fileUpload from "express-fileupload";
 
 const app = express();
+app.use(fileUpload());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

@@ -36,7 +36,7 @@ const PostPage = () => {
           <Image width={736} src={data.media} />
         </div>
         <div className="postDetails">
-          <PostInteractions />
+          <PostInteractions postId={id} />
           <Link to={`/${data.user.userName}`} className="postUser">
             <Image src={data.user.img || "/general/noAvatar.png"} />
             <span>{data.user.displayName}</span>

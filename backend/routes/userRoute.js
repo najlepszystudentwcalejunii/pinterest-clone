@@ -3,15 +3,19 @@ import {
   createUser,
   getOneUser,
   getUsers,
+  loginUser,
+  logoutUser,
+  followUser,
 } from "../controllers/userController.js";
-import User from "../models/userModel.js";
-import bcrypt from "bcrypt";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.post("/create", createUser);
-
 router.get("/", getUsers);
+router.post("/register", createUser);
+router.post("/login", loginUser);
+router.get("/logout", logoutUser);
+router.post("/follow/:userName", verifyToken, followUser);
 
 router.get("/:userName", getOneUser);
 

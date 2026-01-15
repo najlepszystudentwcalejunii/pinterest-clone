@@ -47,6 +47,10 @@
 .profileButtons button:last-child:hover {
   background-color: #c1011e;
 }
+.profileButtons button:last-child:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
 .profileOptions {
   display: flex;
